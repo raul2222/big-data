@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 import os
 
-TRY_LIMIT = 15
+TRY_LIMIT = 10
 SLEEP_TIMER = 60
 
 start_url = "https://www.expansion.com/mercados/cotizaciones/indices/ibex35_I.IB.html"
@@ -25,15 +25,15 @@ while True:
     # si cambia el dia subimos el fichero a HDFS
     if Fecha_csv != mydate:
         print("nuevo dia")
-        os.system('start-dfs.sh')
-        os.system('hdfs dfs -put '+Fecha_csv+'.csv /user/alumno/ibex35')
+        #os.system('start-dfs.sh')
+        #os.system('hdfs dfs -put '+Fecha_csv+'.csv /user/alumno/ibex35')
         Fecha_csv = mydate
     
-    if day >= 0 and day <= 4:
+    if day >= 0 and day <= 6:
         reloj = myhour.split(":")
         lahora = int(reloj[0])
         elminuto = int(reloj[1])
-        if lahora >= 9 and lahora <= 19 and elminuto == 30 and lahora != Lasthour:
+        if lahora >= 0 and lahora <= 23 and (elminuto%15) == 0 and lahora != Lasthour:
             
             Lasthour = lahora
             print("now =", now)
@@ -46,7 +46,7 @@ while True:
                         driver.get(start_url)
 
                         time.sleep(2)
-                        f = open(Fecha_csv+'.csv',"a")
+                        #f = open(Fecha_csv+'.csv',"a")
                         #recuperamos listado de acciones
                         commodities = driver.find_elements_by_xpath("/html/body/main/section/div/div/div/ul/li/div/section/div/article/section[2]/ul[2]/li[1]/div/section/table/tbody/tr")
 
@@ -64,14 +64,15 @@ while True:
                                 else:
                                     row = row + str(list_of_values[value]) + "," + str(now)
                                     print(row)
-                                    f.write(row+"\n")
-                        f.close()
+                                    #f.write(row+"\n")
+                        #f.close()
                         try_number = TRY_LIMIT
                 except Exception as e:
                     print("Exception" + str(try_number) + " " + str(e))
                     try_number+1
+                    
                     time.sleep(SLEEP_TIMER)
-            print("Ready")
+            print("*****Lite*******")
                     
 
             
