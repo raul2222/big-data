@@ -1,77 +1,74 @@
 from __future__ import division
-from itertools import count
-from random import paretovariate
 from mrjob.job import MRJob
-from mrjob.step import MRStep
-import math
-import re
 from datetime import datetime
 from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
 
-4.
+#4. 
+#Fecha, Apertura, Alto, Bajo, Cierre, Ajuste_Cierre, Volumen, Nombre_Accion 
 class MRFilter7(MRJob):
+
+    def configure_args(self):
+        super(MRFilter7, self).configure_args()
+        self.add_passthru_arg('--data', default='iberdrola', help="please enter the stock name")
+
 
     #start-dfs.sh start-yarn.sh
     def mapper(self, _,line): 
-        accion = "iberdrola"
-        now = datetime.now()
-        inicio =  now.strftime("%d/%m/%Y %H:%M:%S")
-        fecha_1h = now - timedelta(hours=1)
-        fecha_1w = now - timedelta(weeks=1)
-        fecha_1m = now - timedelta(days=30)
+        accion = self.options.data.upper()
+        fecha_1h = datetime.now() - timedelta(hours=1)
+        fecha_1w = datetime.now() - timedelta(weeks=1)
+        fecha_1m = datetime.now() - relativedelta(months=1)
 
         field_line = line.split(",")
-        
-        #fecha_alt = fecha[2] + "-" + fecha[1]+"-" + fecha[0]
-        fecha = datetime.strptime(field_line[0],"%Y-%m-%d")
-        
-        if fecha <= now and fecha >= fecha_1m:
-            if fecha >= fecha_1h:
-                yield accion, (field_line[2]+"-"+field_line[3]+"-1h")
-            else:
-                if fecha >= fecha_1w:
-                    yield accion, (field_line[2]+"-"+field_line[3]+"-1w")
-                
-        yield accion, (field_line[2]+"-"+field_line[3]+"-1m")
 
+        fecha = datetime.strptime(field_line[0] + " 00:00:00","%Y-%m-%d %H:%M:%S")
+        
+        if fecha >= fecha_1h and fecha <= datetime.now() and accion == field_line[7]:
+            yield accion, (str(fecha) + "|" +field_line[1]+"|1h")
+        
+        if fecha >= fecha_1w and fecha <= datetime.now() and accion == field_line[7]:
+            yield accion, (str(fecha) + "|" +field_line[1]+"|1w")
+        
+        if fecha >= fecha_1m and fecha <= datetime.now() and accion == field_line[7]:
+            yield accion, (str(fecha) + "|" +field_line[1]+"|1m")
 
     
     def reducer(self, key, values):
 
-        t_minimo1h = 999999
+        t_minimo1h = 9999999
         t_maximo1h = 0
-        t_minimo1w = 999999
+        t_minimo1w = 9999999
         t_maximo1w = 0
-        t_minimo1m = 999999
+        t_minimo1m = 9999999
         t_maximo1m = 0
 
         for data  in values:
             #maximo y minimo
-            datos = data.split("-")
-            maximo = datos[0]
-            minimo = datos[1]
+            datos = data.split("|")
+            valor = datos[1]
             tipo = datos[2]
-            if tipo == "1h" and float(minimo) < float(t_minimo1h):
-                t_minimo1h = minimo
-            else:
-                if tipo == "1w" and float(minimo) < float(t_minimo1w):
-                    t_minimo1w = minimo 
-                else:
-                    t_minimo1m = minimo
+
+            if tipo == "1h" and float(valor) < float(t_minimo1h):
+                t_minimo1h = valor
+            if tipo == "1h" and float(valor) > float(t_maximo1h):
+                t_maximo1h = valor
+            if tipo == "1w" and float(valor) < float(t_minimo1w):
+                t_minimo1w = valor
+            if tipo == "1w" and float(valor) > float(t_maximo1w):
+                t_maximo1w = valor
+            if tipo == "1m" and float(valor) < float(t_minimo1m):
+                t_minimo1m = valor
+            if tipo == "1m" and float(valor) > float(t_maximo1m):
+                t_maximo1m = valor
 
 
-            if tipo == "1h" and float(maximo) > float(t_maximo1h):
-                t_maximo1h = maximo
-            else:
-                if tipo == "1w" and float(maximo) < float(t_maximo1w):
-                    t_minimo1w = minimo 
-                else:
-                    t_minimo1m = minimo
+        if t_minimo1h == 9999999: t_minimo1h = 0
+        if t_minimo1w == 9999999: t_minimo1w = 0
+        if t_minimo1m == 9999999: t_minimo1m = 0
+        
 
-        if t_minimo1h == 999999:
-            t_minimo1h = 0
-    
  
         yield key, (str(t_minimo1h) + " | " + str(t_maximo1h) + " | " + str(t_minimo1w) + " | " + str(t_maximo1w) + " | " + str(t_minimo1m) + " | " + str(t_maximo1m) )
             # accion, maximo, minimo, valor_inicial, incremento y decremento

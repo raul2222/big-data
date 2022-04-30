@@ -1,10 +1,9 @@
-from itertools import count
 from mrjob.job import MRJob
-from mrjob.step import MRStep
-import math
-import re
+from datetime import datetime
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
-#1. Generar un listado mensual
+#2. Generar un listado mensual
 #donde se indique, para cada acci ́on, su valor inicial, final, m ́ınimo y m ́aximo.
 
 # Entrada ->
@@ -14,13 +13,12 @@ class MRFilter7(MRJob):
 
     #start-dfs.sh start-yarn.sh
     def mapper(self, _,line): 
-        year = 2022
-        mes = 4
         field_line = line.split(",")
-        fecha = field_line[0].split("-")
-        if int(fecha[0]) == year and int(fecha[1]) == mes : #semana
-            fecha_alt = fecha[2] + "-" + fecha[1]+"-" + fecha[0]
-            yield (fecha_alt + " - " + field_line[7]+"              "), (field_line[1] + "        -" +field_line[4] + "        -" +field_line[3] +"        -" +field_line[2])
+        fecha_1m = datetime.now() - relativedelta(months=1)
+        fecha = datetime.strptime(field_line[0],"%Y-%m-%d")
+
+        if fecha >= fecha_1m and fecha <= datetime.now(): #semana
+            yield (str(fecha).split(" ")[0] + " - " + field_line[7]), (field_line[1] + " | " +field_line[4] + " | " +field_line[3] +" | " +field_line[2])
 
 
 if __name__ == '__main__':

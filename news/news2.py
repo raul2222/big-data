@@ -9,7 +9,7 @@ import numpy as np
 
 
 year_csv = ""
-last_day = datetime(2021, 1, 30, 1, 1)
+last_day = datetime(2021, 12, 31, 1, 1)
 
 while True:
     
@@ -24,8 +24,10 @@ while True:
         os.system('hdfs dfs -put gnews_'+year_csv+'.csv /user/alumno/ibex35')
         year_csv = data[0]
         
+    if year_csv == "2022":
+        time.sleep(99999999)
     #print(date_for_me)
-    delays = [46, 51, 41, 43, 50, 40]
+    delays = [66, 51, 71, 53, 70, 62]
     delay = np.random.choice(delays)
     time.sleep(delay)
     file = open('gnews_'+year_csv+'.csv', 'a')

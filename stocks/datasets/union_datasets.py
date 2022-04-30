@@ -8,7 +8,7 @@ csvfiles = glob.glob(os.path.join(dir, '*.csv'))
 print (csvfiles)
 
 
-with open('ibexunido.csv', 'a') as f:
+with open('ibexunidohora.csv', 'a') as f:
     writer = csv.writer(f)
     
     for fichero in csvfiles:

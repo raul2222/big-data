@@ -1,55 +1,56 @@
 from __future__ import division
-from itertools import count
-from random import paretovariate
 from mrjob.job import MRJob
 from mrjob.step import MRStep
-import math
-import re
 from datetime import datetime
-
-
+from dateutil.relativedelta import relativedelta
 #3
+# Entrada ->
+# Fecha, Apertura, Alto, Bajo, Cierre, Ajuste_Cierre, Volumen, Nombre_Accion 
+#
 class MRFilter7(MRJob):
 
-    #start-dfs.sh start-yarn.sh
+    def configure_args(self):
+        super(MRFilter7, self).configure_args()
+        self.add_passthru_arg('--data', default='iberdrola|2020-01-01|2020-12-31', help="please enter the name and dates")
+
     def mapper(self, _,line): 
-        fecha_inicio = datetime.strptime("2020-01-01","%Y-%m-%d") 
-        fecha_fin = datetime.strptime("2020-03-31","%Y-%m-%d")
-        accion = "iberdrola"
+        datos = self.options.data.split("|")
+        fecha_inicio = datetime.strptime(datos[1],"%Y-%m-%d") 
+        fecha_fin = datetime.strptime(datos[2],"%Y-%m-%d")
+        accion = datos[0].upper()
 
         field_line = line.split(",")
         fecha = datetime.strptime(field_line[0],"%Y-%m-%d")
         if accion == field_line[7] and fecha >= fecha_inicio and fecha <= fecha_fin: #accion
-            yield field_line[7], (field_line[0] + "*" + field_line[1] + "-" + field_line[4] + "-" +field_line[3] +"-" +field_line[2])
+            yield field_line[7], (field_line[0] + "|" + field_line[1])
 
     def reducer(self, key, values):
-        t_fecha =datetime.strptime("2050-01-01","%Y-%m-%d") 
+        fecha_inicial =datetime.strptime("2111-01-01","%Y-%m-%d") 
         valor_inicial = 0
-        t_minimo = 99999999
-        t_maximo = 0
+        valor_minimo = 99999999
+        valor_maximo = 0
         decre = 0
         incre = 0
         for data  in values:
-            #fecha, apertura, cierre, minimo, maximo
-            datos = data.split("*")
-            dat1 = datos[0]
-            dat2 = datos[1].split("-")
+            #fecha, apertura
+            datos = data.split("|")
+            valor = datos[1]
+            fecha = datetime.strptime(datos[0],"%Y-%m-%d")
             
-            fecha = datetime.strptime(dat1,"%Y-%m-%d")
-            apertura = dat2[0]
-            minimo = dat2[2]
-            maximo = dat2[3]
-            if float(minimo) < float(t_minimo):
-                t_minimo = minimo
-            if float(maximo) > float(t_maximo):
-                t_maximo = maximo
-            if fecha < t_fecha:
-                t_fecha = fecha
-                valor_inicial = apertura
-        incre = (float(t_maximo)-float(valor_inicial))/float(valor_inicial)
-        decre = (float(t_minimo)-float(valor_inicial))/float(valor_inicial)
-        yield key, (str(t_maximo) + " | " + str(t_minimo) + " | " + str(valor_inicial)+ " | " + str(incre)+ " | " + str(decre))
-            # accion, maximo, minimo, valor_inicial, incremento y decremento
+            if float(valor) < float(valor_minimo):
+                valor_minimo = valor
+            if float(valor) > float(valor_maximo):
+                valor_maximo = valor
+
+            if fecha < fecha_inicial:
+                fecha_inicial = fecha
+                valor_inicial = valor
+        if valor_minimo == 99999999: valor_minimo = 0
+
+        incre = (float(valor_maximo)-float(valor_inicial))/float(valor_inicial)
+        decre = (float(valor_minimo)-float(valor_inicial))/float(valor_inicial)
+        yield key, (str(fecha_inicial).split(" ")[0] + " | " + str(valor_inicial) + " | " + str(valor_minimo) + " | " + str(valor_maximo)+ " | " + str(incre)+ " | " + str(decre))
+            # accion, fecha valor inicial, inicial, minimo, maximo, incremento, decremento
 
 if __name__ == '__main__':
     MRFilter7.run()
