@@ -21,7 +21,7 @@ class MRFilter7(MRJob):
 
         field_line = line.split(",")
         fecha = datetime.strptime(field_line[0],"%Y-%m-%d")
-        if accion == field_line[7] and fecha >= fecha_inicio and fecha <= fecha_fin: #accion
+        if accion == field_line[7] and fecha >= fecha_inicio and fecha <= fecha_fin: 
             yield field_line[7], (field_line[0] + "|" + field_line[1])
 
     def reducer(self, key, values):
@@ -42,7 +42,7 @@ class MRFilter7(MRJob):
             if float(valor) > float(valor_maximo):
                 valor_maximo = valor
 
-            if fecha < fecha_inicial:
+            if fecha <= fecha_inicial:
                 fecha_inicial = fecha
                 valor_inicial = valor
         if valor_minimo == 99999999: valor_minimo = 0
