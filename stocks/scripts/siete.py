@@ -13,10 +13,10 @@ class MRFilter7(MRJob):
     #start-dfs.sh start-yarn.sh
     def configure_args(self):
         super(MRFilter7, self).configure_args()
-        self.add_passthru_arg('--data', default='3|2019-01-01|2022-01-31', help="please enter percentage and dates")
+        self.add_passthru_arg('--data', default='3 2019-01-01 2022-01-31', help="please enter percentage and dates")
 
     def mapper(self, _,line): 
-        datos = self.options.data.split("|")
+        datos = self.options.data.split(" ")
         fecha_inicio = datetime.strptime(datos[1],"%Y-%m-%d") 
         fecha_fin = datetime.strptime(datos[2],"%Y-%m-%d")
         porcentaje = datos[0]

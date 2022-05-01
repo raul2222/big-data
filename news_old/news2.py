@@ -48,6 +48,7 @@ while True:
             date = link.find('div', class_='OSrXXb ZE0LJd').span.string
             writer.writerow([date_for_me,news,newspaper,date])
             centinela = True
+        
         file.close()
         last_day = last_day - timedelta(days=1)
         if centinela == False:

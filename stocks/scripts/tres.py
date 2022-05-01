@@ -11,10 +11,10 @@ class MRFilter7(MRJob):
 
     def configure_args(self):
         super(MRFilter7, self).configure_args()
-        self.add_passthru_arg('--data', default='iberdrola|2020-01-01|2020-12-31', help="please enter the name and dates")
+        self.add_passthru_arg('--data', default='iberdrola 2020-01-01 2020-12-31', help="please enter the name and dates")
 
     def mapper(self, _,line): 
-        datos = self.options.data.split("|")
+        datos = self.options.data.split(" ")
         fecha_inicio = datetime.strptime(datos[1],"%Y-%m-%d") 
         fecha_fin = datetime.strptime(datos[2],"%Y-%m-%d")
         accion = datos[0].upper()
