@@ -19,7 +19,7 @@ def have_read(text):
 def news():
 
     year_csv = ""
-    last_day = datetime(2022, 3, 16, 1, 1)
+    last_day = datetime(2020, 12, 31, 1, 1)
 
     while True:
         
@@ -35,10 +35,10 @@ def news():
             year_csv = data[0]
             
         #print(date_for_me)
-        delays = [2, 3, 2, 5, 1, 4]
+        delays = [4, 8, 2, 7, 1, 3]
         delay = np.random.choice(delays)
         time.sleep(delay)
-        file = open('gnews_'+year_csv+'.csv', 'a')
+        file = open('reutersnews_'+year_csv+'.csv', 'a')
         writer = csv.writer(file)
         try:
             centinela = False
@@ -51,7 +51,7 @@ def news():
             #print(soup)
             #^C.*AA$
             regex = re.compile('^C.*AA$')
-
+            
             for link in soup.find_all('div', attrs={'data-hveid' : regex}):
 
                 fuente = link.span.string
@@ -63,9 +63,8 @@ def news():
                         req2 = Request(link_noticia, headers={'User-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"})
                         webpage2 = urlopen(req2).read()
                         soup2 = BeautifulSoup(webpage2, 'html.parser')
+                        error = 0
 
-                        titular = soup2.find('h1', attrs={'data-testid' : 'Heading'}).getText()
-                        
                         paragraph0 = ""
                         paragraph1 = ""
                         paragraph2 = ""
@@ -76,57 +75,78 @@ def news():
                         paragraph7 = ""
                         paragraph8 = ""
                         paragraph9 = ""
+
                         try:
-                            paragraph0 = soup2.find('p', attrs={'data-testid' : 'paragraph-0'}).getText()
-                            if paragraph0.find("(Reuters) - ") != -1:
-                                paragraph0 = paragraph0.split(" - ")[1]
+                            titular = soup2.find('h1', attrs={'data-testid' : 'Heading'}).getText()
                         except:
-                            pass
-                        try:
-                            paragraph1 = soup2.find('p', attrs={'data-testid' : 'paragraph-1'}).getText()
-                            paragraph1 = have_read(paragraph1)
-                        except:
-                            pass
-                        try:
-                            paragraph2 = soup2.find('p', attrs={'data-testid' : 'paragraph-2'}).getText()
-                            paragraph2 = have_read(paragraph2)
-                        except:
-                            pass
-                        try:
-                            paragraph3 = soup2.find('p', attrs={'data-testid' : 'paragraph-3'}).getText()
-                            paragraph3 = have_read(paragraph3)
-                        except:
-                            pass
-                        try:
-                            paragraph4 = soup2.find('p', attrs={'data-testid' : 'paragraph-4'}).getText()
-                            paragraph4 = have_read(paragraph4)
-                        except:
-                            pass
-                        try:
-                            paragraph5 = soup2.find('p', attrs={'data-testid' : 'paragraph-5'}).getText()
-                            paragraph5 = have_read(paragraph5)
-                        except:
-                            pass
-                        try:
-                            paragraph6 = soup2.find('p', attrs={'data-testid' : 'paragraph-6'}).getText()
-                            paragraph6 = have_read(paragraph6)
-                        except:
-                            pass
-                        try:
-                            paragraph7 = soup2.find('p', attrs={'data-testid' : 'paragraph-7'}).getText()
-                            paragraph7 = have_read(paragraph7)
-                        except:
-                            pass
-                        try:
-                            paragraph8 = soup2.find('p', attrs={'data-testid' : 'paragraph-8'}).getText()
-                            paragraph8 = have_read(paragraph8)
-                        except:
-                            pass
-                        try:
-                            paragraph9 = soup2.find('p', attrs={'data-testid' : 'paragraph-9'}).getText()
-                            paragraph9 = have_read(paragraph9)
-                        except:
-                            pass
+                            print("fallo titiular pag antigua")
+                            error = 1 # tiene pagina antigua
+
+                        if error == 1:
+                            i = 0
+                            titular = soup2.find('h1', class_='Headline-headline-2FXIq Headline-black-OogpV ArticleHeader-headline-NlAqj').getText()
+                            for paragraph in soup2.find_all('div', class_='Paragraph-paragraph-2Bgue ArticleBody-para-TD_9x'):
+                                print("titular" + i + paragraph)
+                                i+=1
+                            error =0
+                            print ("timer")
+                            print(link_noticia)
+                            time.sleep(100)
+
+                        else:
+
+                        
+                            try:
+                                paragraph0 = soup2.find('p', attrs={'data-testid' : 'paragraph-0'}).getText()
+                                if paragraph0.find("(Reuters) - ") != -1:
+                                    paragraph0 = paragraph0.split(" - ")[1]
+                            except:
+                                pass
+                            try:
+                                paragraph1 = soup2.find('p', attrs={'data-testid' : 'paragraph-1'}).getText()
+                                paragraph1 = have_read(paragraph1)
+                            except:
+                                pass
+                            try:
+                                paragraph2 = soup2.find('p', attrs={'data-testid' : 'paragraph-2'}).getText()
+                                paragraph2 = have_read(paragraph2)
+                            except:
+                                pass
+                            try:
+                                paragraph3 = soup2.find('p', attrs={'data-testid' : 'paragraph-3'}).getText()
+                                paragraph3 = have_read(paragraph3)
+                            except:
+                                pass
+                            try:
+                                paragraph4 = soup2.find('p', attrs={'data-testid' : 'paragraph-4'}).getText()
+                                paragraph4 = have_read(paragraph4)
+                            except:
+                                pass
+                            try:
+                                paragraph5 = soup2.find('p', attrs={'data-testid' : 'paragraph-5'}).getText()
+                                paragraph5 = have_read(paragraph5)
+                            except:
+                                pass
+                            try:
+                                paragraph6 = soup2.find('p', attrs={'data-testid' : 'paragraph-6'}).getText()
+                                paragraph6 = have_read(paragraph6)
+                            except:
+                                pass
+                            try:
+                                paragraph7 = soup2.find('p', attrs={'data-testid' : 'paragraph-7'}).getText()
+                                paragraph7 = have_read(paragraph7)
+                            except:
+                                pass
+                            try:
+                                paragraph8 = soup2.find('p', attrs={'data-testid' : 'paragraph-8'}).getText()
+                                paragraph8 = have_read(paragraph8)
+                            except:
+                                pass
+                            try:
+                                paragraph9 = soup2.find('p', attrs={'data-testid' : 'paragraph-9'}).getText()
+                                paragraph9 = have_read(paragraph9)
+                            except:
+                                pass
                         article = titular + " " + paragraph0 + " " + paragraph1 + " " + paragraph2
                         article = article + " " + paragraph3 + " " + paragraph4 + " " + paragraph5
                         article = article + " " + paragraph6 + " " + paragraph7 + " " + paragraph8 + " " + paragraph9
@@ -137,14 +157,14 @@ def news():
                         centinela = True
                     except Exception as e:   
                         print("Exception tipo 2: " + str(e))
-                        time.sleep(15)
+                        time.sleep(1)
                         file2 = open('log.csv', 'a')
                         writer2 = csv.writer(file2)
                         writer2.writerow([date_for_me,"Error tipo 2" ,article])
                         file2.close()
 
 
-                    delays2 = [2, 2, 3, 4, 3]
+                    delays2 = [1, 2, 3, 2, 3]
                     delay2 = np.random.choice(delays2)
                     time.sleep(delay2)
 
