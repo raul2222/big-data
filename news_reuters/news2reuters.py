@@ -19,7 +19,7 @@ def have_read(text):
 def news():
 
     year_csv = ""
-    last_day = datetime(2022, 4, 21, 1, 1)
+    last_day = datetime(2022, 3, 16, 1, 1)
 
     while True:
         
@@ -35,7 +35,7 @@ def news():
             year_csv = data[0]
             
         #print(date_for_me)
-        delays = [2, 2, 3, 4, 5, 2]
+        delays = [2, 3, 2, 5, 1, 4]
         delay = np.random.choice(delays)
         time.sleep(delay)
         file = open('gnews_'+year_csv+'.csv', 'a')
@@ -144,7 +144,7 @@ def news():
                         file2.close()
 
 
-                    delays2 = [19, 20, 21, 13, 15, 22, 17, 11]
+                    delays2 = [2, 2, 3, 4, 3]
                     delay2 = np.random.choice(delays2)
                     time.sleep(delay2)
 
