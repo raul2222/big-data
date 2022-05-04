@@ -19,7 +19,7 @@ def have_read(text):
 def news():
 
     year_csv = ""
-    last_day = datetime(2020, 12, 31, 1, 1)
+    last_day = datetime(2020, 9, 15, 1, 1)
 
     while True:
         
@@ -35,7 +35,7 @@ def news():
             year_csv = data[0]
             
         #print(date_for_me)
-        delays = [4, 8, 2, 7, 1, 3]
+        delays = [2, 5, 2, 7, 1, 3]
         delay = np.random.choice(delays)
         time.sleep(delay)
         file = open('reutersnews_'+year_csv+'.csv', 'a')
@@ -83,15 +83,16 @@ def news():
                             error = 1 # tiene pagina antigua
 
                         if error == 1:
-                            i = 0
                             titular = soup2.find('h1', class_='Headline-headline-2FXIq Headline-black-OogpV ArticleHeader-headline-NlAqj').getText()
-                            for paragraph in soup2.find_all('div', class_='Paragraph-paragraph-2Bgue ArticleBody-para-TD_9x'):
-                                print("titular" + i + paragraph)
-                                i+=1
+           
+                            for paragraph in soup2.find_all('p', class_='Paragraph-paragraph-2Bgue ArticleBody-para-TD_9x'):
+                                x = paragraph.getText()
+                                if x.find("(Reuters) - ") != -1:
+                                    paragraph0 = x.split(" - ")[1]
+                                else:
+                                    paragraph0 = paragraph0 + " " + x
                             error =0
-                            print ("timer")
-                            print(link_noticia)
-                            time.sleep(100)
+
 
                         else:
 
@@ -164,7 +165,7 @@ def news():
                         file2.close()
 
 
-                    delays2 = [1, 2, 3, 2, 3]
+                    delays2 = [0.4, 0.5, 1, 0.7, 0.5, 0.2, 1, 0.5]
                     delay2 = np.random.choice(delays2)
                     time.sleep(delay2)
 
