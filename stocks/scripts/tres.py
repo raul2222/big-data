@@ -49,8 +49,8 @@ class MRFilter7(MRJob):
 
         incre = (float(valor_maximo)-float(valor_inicial))/float(valor_inicial)
         decre = (float(valor_minimo)-float(valor_inicial))/float(valor_inicial)
-        yield key, (str(fecha_inicial).split(" ")[0] + " | " + str(valor_inicial) + " | " + str(valor_minimo) + " | " + str(valor_maximo)+ " | " + str(incre)+ " | " + str(decre))
-            # accion, fecha valor inicial, inicial, minimo, maximo, incremento, decremento
+        yield key, (str(fecha_inicial).split(" ")[0] + " | " + str(valor_inicial) + " | " + str(valor_maximo) + " | " + str(valor_minimo)+ " | " + str(incre)+ " | " + str(decre))
+            # accion, fecha valor inicial, inicial, maximo, minimo, incremento, decremento
 
 if __name__ == '__main__':
     MRFilter7.run()

@@ -12,8 +12,8 @@ class MRFilter7(MRJob):
 
     #start-dfs.sh start-yarn.sh
     def mapper(self, _,line): 
-        fecha_1w = datetime.now() - timedelta(weeks=1)
-        fecha_1m = datetime.now() - relativedelta(months=1)
+        fecha_1w = datetime.now() - timedelta(weeks=3)
+        fecha_1m = datetime.now() - relativedelta(months=2)
 
         field_line = line.split(",")
 

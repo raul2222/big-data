@@ -1,5 +1,8 @@
+from __future__ import division
 from mrjob.job import MRJob
 from mrjob.step import MRStep
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import re
 
 WORD_RE = re.compile(r"[\w']+")
@@ -7,15 +10,22 @@ WORD_RE = re.compile(r"[\w']+")
 
 class MRMostUsedWord(MRJob):
 
+    def configure_args(self):
+        super(MRMostUsedWord, self).configure_args()
+        self.add_passthru_arg('--data', default='2022-04-01 2022-04-07', help="please enter dates")
+
     def mapper(self, _, line):
         # yield each word in the line
+        datos = self.options.data.split(" ")
+        fecha_inicio = datetime.strptime(datos[0],"%Y-%m-%d") 
+        fecha_fin = datetime.strptime(datos[1],"%Y-%m-%d")
         fields = line.split(',') 
-        fecha = fields[0]
-        for word in WORD_RE.findall(fields[1]):
-            yield (word.lower() +"-"+ fecha), 1
+        fecha = fecha = datetime.strptime(fields[0],"%Y-%m-%d")
+        if fecha >= fecha_inicio and fecha <= fecha_fin: 
+            for word in WORD_RE.findall(fields[1]):
+                yield word.lower() , 1
 
  
-
     def reducer(self, word, counts):
         yield "word", ( sum(counts),word)
 
@@ -27,12 +37,14 @@ class MRMostUsedWord(MRJob):
             self.alist.append(value)
         
         self.blist = []
-        for i in range(100):
+        for i in range(20):
             self.blist.append(max(self.alist))
             self.alist.remove(max(self.alist))
         
-        for i in range(100):
+        for i in range(20):
             yield self.blist[i]
+
+    
 
 
     def steps(self):
