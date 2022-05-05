@@ -5,7 +5,7 @@ echo $date_now
 startdate=`date -d "2022-04-20" +%Y-%m-%d`  #|| exit -1
 enddate=`date -d "2018-12-23" +%Y-%m-%d` #|| exit -1
 
-p="IBEX.csv --data "
+p="reuters_unido.csv --data "
 hasta=$startdate
 desde=$startdate
 while [ 1 ]; do 
@@ -13,7 +13,7 @@ while [ 1 ]; do
     desde=$(date -I -d "$hasta - 1 weeks")
     param="$desde*$hasta"
     echo $p $param
-    python tres.py $p $param >> ibex_despliegue.csv
+    python count_words2.py $p $param >> words_despliegue.csv
   
     hasta=$desde
     #sleep 20

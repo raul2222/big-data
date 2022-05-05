@@ -7,20 +7,21 @@ from mr3px.csvprotocol import CsvProtocol
 import re
 
 WORD_RE = re.compile(r"[\w']+")
-
 FECHA = "2023-01-01"
+
 class MRMostUsedWord(MRJob):
     #OUTPUT_PROTOCOL = CsvProtocol  # write output as CSV
-
+    
     def configure_args(self):
         super(MRMostUsedWord, self).configure_args()
-        self.add_passthru_arg('--data', default='2018-11-12 2018-12-31', help="please enter dates")
+        self.add_passthru_arg('--data', default='2022-04-13*2022-04-20', help="please enter dates")
 
     def mapper(self, _, line):
         # yield each word in the line
-        datos = self.options.data.split(" ")
+        datos = self.options.data.split("*")
         fecha_inicio = datetime.strptime(datos[0],"%Y-%m-%d") 
-        FECHA = fecha_inicio
+        global FECHA 
+        FECHA = datetime.strptime(datos[0],"%Y-%m-%d") 
         fecha_fin = datetime.strptime(datos[1],"%Y-%m-%d")
         fields = line.split(',') 
         fecha = fecha = datetime.strptime(fields[0],"%Y-%m-%d")
@@ -31,7 +32,7 @@ class MRMostUsedWord(MRJob):
 
  
     def reducer(self, word, counts):
-        yield FECHA, ( sum(counts),word)
+        yield "key", (sum(counts),word)
 
 
     def reducer2(self, key, values):
@@ -45,10 +46,14 @@ class MRMostUsedWord(MRJob):
             self.blist.append(max(self.alist))
             self.alist.remove(max(self.alist))
         
-        for i in range(12):
-            yield self.blist[i]
+        #result_list = [int(v) for k,v in self.blist]
+        
+        for n in range(12):
+            yield str(FECHA).split(" ")[0], self.blist[n]
+                
+        
+        #yield x
 
-    
 
 
     def steps(self):

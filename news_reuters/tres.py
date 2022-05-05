@@ -3,15 +3,19 @@ from mrjob.job import MRJob
 from mrjob.step import MRStep
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+import csv
+from mr3px.csvprotocol import CsvProtocol
 #3
 # Entrada ->
 # Fecha, Apertura, Alto, Bajo, Cierre, Ajuste_Cierre, Volumen, Nombre_Accion 
 #
 class MRFilter7(MRJob):
 
+    OUTPUT_PROTOCOL = CsvProtocol  # write output as CSV
+
     def configure_args(self):
         super(MRFilter7, self).configure_args()
-        self.add_passthru_arg('--data', default='2020-01-01*2020-12-31', help="please enter the name and dates")
+        self.add_passthru_arg('--data', default='2020-11-01*2020-12-31', help="please enter the name and dates")
 
     def mapper(self, _,line): 
         datos = self.options.data.split("*")
@@ -46,11 +50,12 @@ class MRFilter7(MRJob):
                 fecha_inicial = fecha
                 valor_inicial = valor
         if valor_minimo == 99999999: valor_minimo = 0
-
-        incre = round((float(valor_maximo)-float(valor_inicial))/float(valor_inicial),3)
-        decre = round((float(valor_minimo)-float(valor_inicial))/float(valor_inicial),3)
-        yield key, (str(fecha_inicial).split(" ")[0] + " | " + str(incre)+ " | " + str(decre))
-            # accion, fecha valor inicial, inicial, maximo, minimo, incremento, decremento
+        
+        incre = round((float(valor_maximo)-float(valor_inicial))/float(valor_inicial),4)
+        decre = round((float(valor_minimo)-float(valor_inicial))/float(valor_inicial),4)
+        valor_inicial = round(float(valor_inicial),2)
+        yield None,[key,str(fecha_inicial).split(" ")[0],valor_inicial,incre,decre]
+                    # accion, fecha valor inicial, inicial, maximo, minimo, incremento, decremento
 
 if __name__ == '__main__':
     MRFilter7.run()
