@@ -14,4 +14,4 @@ Big Data: Proyecto despliegue
          el script usado para la extracción se encuentra en:
          /news_reuters/news2reutersl.py 
 
-       * En proceso ...
+       * Informe final: https://github.com/raul2222/big-data/blob/master/news_reuters/informe_final.csv
