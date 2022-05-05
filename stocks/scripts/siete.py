@@ -70,6 +70,7 @@ class MRFilter7(MRJob):
         
         self.blist = []
         x = len (self.alist)
+        
        
         for i in range(x):
             self.blist.append(max(self.alist))

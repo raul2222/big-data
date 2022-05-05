@@ -12,7 +12,7 @@ class MRMostUsedWord(MRJob):
 
     def configure_args(self):
         super(MRMostUsedWord, self).configure_args()
-        self.add_passthru_arg('--data', default='2022-04-01 2022-04-07', help="please enter dates")
+        self.add_passthru_arg('--data', default='2018-11-12 2018-12-31', help="please enter dates")
 
     def mapper(self, _, line):
         # yield each word in the line
@@ -23,7 +23,8 @@ class MRMostUsedWord(MRJob):
         fecha = fecha = datetime.strptime(fields[0],"%Y-%m-%d")
         if fecha >= fecha_inicio and fecha <= fecha_fin: 
             for word in WORD_RE.findall(fields[1]):
-                yield word.lower() , 1
+                if len(word) > 4:
+                    yield word, 1
 
  
     def reducer(self, word, counts):

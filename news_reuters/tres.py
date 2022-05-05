@@ -7,71 +7,22 @@ from dateutil.relativedelta import relativedelta
 # Entrada ->
 # Fecha, Apertura, Alto, Bajo, Cierre, Ajuste_Cierre, Volumen, Nombre_Accion 
 #
-class MRMostUsedWord(MRJob):
-
-    def configure_args(self):
-        super(MRMostUsedWord, self).configure_args()
-        self.add_passthru_arg('--data', default='2021-01-01 2022-12-20', help="please enter dates")
-
-    def mapper(self, _, line):
-        # yield each word in the line
-        datos = self.options.data.split(" ")
-        fecha_inicio = datetime.strptime(datos[0],"%Y-%m-%d") 
-        fecha_fin = datetime.strptime(datos[1],"%Y-%m-%d")
-        fields = line.split(',') 
-        fecha = fecha = datetime.strptime(fields[0],"%Y-%m-%d")
-        if fecha >= fecha_inicio and fecha <= fecha_fin: 
-            for word in WORD_RE.findall(fields[1]):
-                yield word.lower() , 1
-
- 
-    def reducer(self, word, counts):
-        yield "word", ( sum(counts),word)
-
-
-    def reducer2(self, key, values):
-        self.alist = []
-        
-        for value in values:
-            self.alist.append(value)
-        
-        self.blist = []
-        for i in range(20):
-            self.blist.append(max(self.alist))
-            self.alist.remove(max(self.alist))
-        
-        for i in range(20):
-            yield self.blist[i]
-
-    
-
-
-    def steps(self):
-        return [
-            MRStep(mapper = self.mapper,
-                   reducer = self.reducer),
-            MRStep(reducer = self.reducer2)
-        ]
-
-
-
-
 class MRFilter7(MRJob):
 
     def configure_args(self):
         super(MRFilter7, self).configure_args()
-        self.add_passthru_arg('--data', default='iberdrola 2020-01-01 2020-12-31', help="please enter the name and dates")
+        self.add_passthru_arg('--data', default='2020-01-01*2020-12-31', help="please enter the name and dates")
 
     def mapper(self, _,line): 
-        datos = self.options.data.split(" ")
-        fecha_inicio = datetime.strptime(datos[1],"%Y-%m-%d") 
-        fecha_fin = datetime.strptime(datos[2],"%Y-%m-%d")
-        accion = datos[0].upper()
+        datos = self.options.data.split("*")
+        fecha_inicio = datetime.strptime(datos[0],"%Y-%m-%d") 
+        fecha_fin = datetime.strptime(datos[1],"%Y-%m-%d")
+        accion = "IBEX"
 
         field_line = line.split(",")
         fecha = datetime.strptime(field_line[0],"%Y-%m-%d")
-        if accion == field_line[7] and fecha >= fecha_inicio and fecha <= fecha_fin: 
-            yield field_line[7], (field_line[0] + "|" + field_line[1])
+        if fecha >= fecha_inicio and fecha <= fecha_fin: 
+            yield accion, (field_line[0] + "|" + field_line[1])
 
     def reducer(self, key, values):
         fecha_inicial =datetime.strptime("2111-01-01","%Y-%m-%d") 
@@ -96,11 +47,10 @@ class MRFilter7(MRJob):
                 valor_inicial = valor
         if valor_minimo == 99999999: valor_minimo = 0
 
-        incre = (float(valor_maximo)-float(valor_inicial))/float(valor_inicial)
-        decre = (float(valor_minimo)-float(valor_inicial))/float(valor_inicial)
-        yield key, (str(fecha_inicial).split(" ")[0] + " | " + str(valor_inicial) + " | " + str(valor_minimo) + " | " + str(valor_maximo)+ " | " + str(incre)+ " | " + str(decre))
-            # accion, fecha valor inicial, inicial, minimo, maximo, incremento, decremento
+        incre = round((float(valor_maximo)-float(valor_inicial))/float(valor_inicial),3)
+        decre = round((float(valor_minimo)-float(valor_inicial))/float(valor_inicial),3)
+        yield key, (str(fecha_inicial).split(" ")[0] + " | " + str(incre)+ " | " + str(decre))
+            # accion, fecha valor inicial, inicial, maximo, minimo, incremento, decremento
 
 if __name__ == '__main__':
     MRFilter7.run()
-    MRMostUsedWord.run()
